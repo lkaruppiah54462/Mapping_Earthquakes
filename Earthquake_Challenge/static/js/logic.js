@@ -15,19 +15,29 @@ let satelliteStreets = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/sate
 		accessToken: API_KEY
 });
 
+// We create the tile layer that will be the background of our map.
+let light = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/light-v10/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+	attribution: 'Map data © <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery (c) <a href="https://www.mapbox.com/">Mapbox</a>',
+		maxZoom: 18,
+		accessToken: API_KEY
+})
+
 // Create a base layer that holds both maps.
 let baseMaps = {
   Streets: streets,
+  Light : light,
   Satellite: satelliteStreets
 };
 
 // Create the earthquake layer for our map.
 let earthquakes = new L.layerGroup();
+let plates = new L.layerGroup();
 
 // We define an object that contains the overlays.
 // This overlay will be visible all the time.
 let overlays = {
-	Earthquakes: earthquakes
+	Earthquakes: earthquakes,
+	Plates : plates
 };
 
 
@@ -37,17 +47,41 @@ let overlays = {
 let map = L.map('mapid', {
 	center: [39.5, -98.5],
 	zoom: 3,
-	layers: [streets]
+	layers: [streets,earthquakes,plates]
 })
 // Then we add a control to the map that will allow the user to change
 // which layers are visible.
 // Pass our map layers into our layers control and add the layers control to the map.
 L.control.layers(baseMaps,overlays).addTo(map);
 
+//Plates
+//accessing the plate data
+let platesData = "https://raw.githubusercontent.com/lkaruppiah54462/Mapping_Earthquakes/Earthquake_Challenge/PB2002_boundaries.json";
 
-// Then we add our 'graymap' tile layer to the map.
-//streets.addTo(map);
-// Accessing the Toronto airline routes GeoJSON URL.
+//Create a style for the lines.
+let myStyle = {
+	color: "red",
+	weight: 2
+}
+d3.json(platesData).then(function(data) {
+	//console.log(data);
+	L.geoJson(data, {
+		style : myStyle,
+	  // We turn each feature into a marker on the map.
+	  onEachFeature: function(feature, layer) {
+		console.log(layer);
+		console.log(feature);
+		layer.bindPopup("<h2>Name: " + feature.properties.Name + "</h2> <hr> <h2> Source:  "
+		+ feature.properties.source + "</h2>")
+		
+	  }
+	}).addTo(plates);
+
+	//then add the overlay layer to the map
+	plates.addTo(map);	
+  });
+
+// Accessing the earthquakes GeoJSON URL.
 let earthquakeData = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson"; 
 
 // Retrieve the earthquake GeoJSON data.
@@ -101,7 +135,7 @@ d3.json(earthquakeData).then(function(data) {
 		// We turn each feature into a circleMarker on the map.
 	
 		pointToLayer: function(feature, latlng) {
-				  console.log(data);
+				  //console.log(data);
 				  return L.circleMarker(latlng);
 		},
 		// We set the style for each circleMarker using our styleInfo function.
@@ -134,7 +168,7 @@ d3.json(earthquakeData).then(function(data) {
 	
 		// Looping through our intervals to generate a label with a colored square for each interval.
 		for (var i = 0; i < magnitudes.length; i++) {
-			console.log(colors[i]);
+			//console.log(colors[i]);
 			div.innerHTML +=
 			"<i style='background: " + colors[i] + "'></i> " +
 			magnitudes[i] + (magnitudes[i + 1] ? "&ndash;" + magnitudes[i + 1] + "<br>" : "+");
