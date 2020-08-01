@@ -11,4 +11,4 @@
 4. Plate boundries in bright visible color in all three strret maps.
 
 ##B. Results
-![](PB2002_boundaries.PNG)
+![](Earthquake.PNG)
