@@ -12,3 +12,5 @@
 
 ##B. Results
 ![](Earthquake.PNG)
+![](lightplate.PNG)
+![](satelliteearthquake.PNG)

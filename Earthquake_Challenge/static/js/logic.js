@@ -8,14 +8,14 @@ attribution: 'Map data © <a href="https://www.openstreetmap.org/">OpenStreetMap
 	accessToken: API_KEY
 });
 
-// We create the tile layer that will be the (dark)background of our map.
+// We create the tile layer that will be the (satellite)background of our map.
 let satelliteStreets = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v11/tiles/{z}/{x}/{y}?access_token={accessToken}', {
 	attribution: 'Map data © <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery (c) <a href="https://www.mapbox.com/">Mapbox</a>',
 		maxZoom: 18,
 		accessToken: API_KEY
 });
 
-// We create the tile layer that will be the background of our map.
+// We create the tile layer that will be the (light) background of our map.
 let light = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/light-v10/tiles/{z}/{x}/{y}?access_token={accessToken}', {
 	attribution: 'Map data © <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery (c) <a href="https://www.mapbox.com/">Mapbox</a>',
 		maxZoom: 18,
@@ -29,7 +29,7 @@ let baseMaps = {
   Satellite: satelliteStreets
 };
 
-// Create the earthquake layer for our map.
+// Create the earthquake/plate layers for our map.
 let earthquakes = new L.layerGroup();
 let plates = new L.layerGroup();
 
@@ -40,13 +40,11 @@ let overlays = {
 	Plates : plates
 };
 
-
-//L.control.layers(baseMaps, overlays).addTo(map);
-
 // Create the map object with center, zoom level and default layer.
 let map = L.map('mapid', {
 	center: [39.5, -98.5],
 	zoom: 3,
+	//launch layers
 	layers: [streets,earthquakes,plates]
 })
 // Then we add a control to the map that will allow the user to change
@@ -54,6 +52,7 @@ let map = L.map('mapid', {
 // Pass our map layers into our layers control and add the layers control to the map.
 L.control.layers(baseMaps,overlays).addTo(map);
 
+///////////////////////For PLATES
 //Plates
 //accessing the plate data
 let platesData = "https://raw.githubusercontent.com/lkaruppiah54462/Mapping_Earthquakes/Earthquake_Challenge/PB2002_boundaries.json";
@@ -69,18 +68,17 @@ d3.json(platesData).then(function(data) {
 		style : myStyle,
 	  // We turn each feature into a marker on the map.
 	  onEachFeature: function(feature, layer) {
-		console.log(layer);
-		console.log(feature);
+		//console.log(layer);
+		//console.log(feature);
 		layer.bindPopup("<h2>Name: " + feature.properties.Name + "</h2> <hr> <h2> Source:  "
-		+ feature.properties.source + "</h2>")
-		
+		+ feature.properties.source + "</h2>")		
 	  }
 	}).addTo(plates);
 
 	//then add the overlay layer to the map
 	plates.addTo(map);	
   });
-
+//////////////////////For EARTHQUAKE
 // Accessing the earthquakes GeoJSON URL.
 let earthquakeData = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson"; 
 
